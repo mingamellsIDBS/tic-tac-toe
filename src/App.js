@@ -56,7 +56,6 @@ function calculateWinner(rows){
 }
 
 function Square({ value, onSquareClick }) {
-
   return (
     <button 
       className="square"
@@ -68,11 +67,19 @@ function Square({ value, onSquareClick }) {
 }
 
 function BoardRow({ squares, onRowClick }){
+  const listOfCells = squares.map(
+    (cell, index) => (
+      <Square 
+        key={index} 
+        value={squares[index]} 
+        onSquareClick={() => onRowClick(index)} 
+      />
+    )
+  );
+
   return(
     <div className="board-row">
-      <Square value={squares[0]} onSquareClick={() => onRowClick(0)} />
-      <Square value={squares[1]} onSquareClick={() => onRowClick(1)} />
-      <Square value={squares[2]} onSquareClick={() => onRowClick(2)} />
+      {listOfCells}
     </div>
   );
 }
@@ -94,19 +101,28 @@ function Board({ xIsNext, rows, onPlay }) {
       }
     }
   }
+
+  const listOfRows = rows.map(
+    (row, index) => (
+      <BoardRow 
+        key={index} 
+        squares={rows[index]} 
+        onRowClick={(col) => handleBoardClick(index, col)} 
+      />
+    )
+  );
   
   return (
     <>
       <div className="status">{status}</div>
-      <BoardRow squares={rows[0]} onRowClick={(col) => handleBoardClick(0, col)} />
-      <BoardRow squares={rows[1]} onRowClick={(col) => handleBoardClick(1, col)} />
-      <BoardRow squares={rows[2]} onRowClick={(col) => handleBoardClick(2, col)} />
+        {listOfRows}
     </>
   );
 }
 
 export default function Game() {
-  const [history, setHistory] = useState([emptyBoard(3)]);
+  const [size, setSize] = useState(4);
+  const [history, setHistory] = useState([emptyBoard(size)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentRows = history[currentMove];
@@ -135,10 +151,40 @@ export default function Game() {
     setCurrentMove(index);
   }
 
+  function incrementSize(){
+    changeSize(1);
+  }
+
+  function decrementSize(){
+    changeSize(-1);
+  }
+
+  function changeSize(change){
+    const nextSize = size + change;
+    if (nextSize > 2) {
+      setSize(nextSize);
+      setHistory([emptyBoard(nextSize)]);
+      setCurrentMove(0);
+    }
+  }
+
   return (
+    <>
+    <p>
+      Game size: {size} 
+      {" "}
+      <button onClick={decrementSize} >
+        -
+      </button>
+      {" "}
+      <button onClick={incrementSize} >
+        +
+      </button>
+    </p>
     <div className="game" >
       <div className="game-board" >
         <Board 
+          size={size} 
           xIsNext={xIsNext}
           rows={currentRows}
           onPlay={handlePlay}
@@ -148,5 +194,6 @@ export default function Game() {
         <ol> {moveList} </ol>
       </div>
     </div>
+    </>
   );
 }
