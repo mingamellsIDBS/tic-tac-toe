@@ -108,13 +108,34 @@ function Board({ xIsNext, rows, onPlay }) {
 export default function Game() {
   const [xIsNext, setXIsNext] = useState(true);
   const [history, setHistory] = useState([emptyBoard(3)]);
-  // console.log("history[" + history.length - 1 + "]" + history[history.length - 1]);
-  const currentRows = history[history.length - 1];
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentRows = history[currentMove];
+  const moveList = history.map(
+    (rows, index) => {
+      const description = "Go to " + (index > 0 ?
+        "move #" + index :
+        "start of game");
+      return (
+        <li key={index} >
+          <button onClick={() => gotoHistory(index)} >
+            {description}
+          </button>
+        </li>
+      );
+    }
+  );
 
   function handlePlay(nextRows){
-    setHistory([ ...history , nextRows]);
+    const updatedHistory = [ ...history.slice(0, currentMove + 1), nextRows];
+    setHistory(updatedHistory);
     setXIsNext(!xIsNext);
-}
+    setCurrentMove(updatedHistory.length - 1);
+  }
+
+  function gotoHistory(index){
+    setCurrentMove(index);
+    setXIsNext(index % 2 === 0);
+  }
 
   return (
     <div className="game" >
@@ -126,7 +147,7 @@ export default function Game() {
         />
       </div>
       <div className="game-info" >
-        <ol> <li> TODO </li> </ol>
+        <ol> {moveList} </ol>
       </div>
     </div>
   );
