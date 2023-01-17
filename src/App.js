@@ -77,23 +77,20 @@ function BoardRow({ squares, onRowClick }){
   );
 }
 
-export default function Board() {
-  const [xIsNext, setXIsNext] = useState(true);
-  const [rows, setRows] = useState(emptyBoard(3));
+function Board({ xIsNext, rows, onPlay }) {
   const winner = calculateWinner(rows);
   const status = (winner !== emptyCell) ? 
     "Winner is: " + winner : 
     "Next player: " + (xIsNext? "X": "O")
 
-  function onBoardClick(row, col){
+  function handleBoardClick(row, col){
     const test = rows[row][col];
     if (winner === emptyCell){
         if (test == null || test === emptyCell){
         const nextRows = rows.slice();
         nextRows[row] = rows[row].slice();
         nextRows[row][col] = xIsNext? "X" : "O";
-        setRows(nextRows);
-        setXIsNext(!xIsNext);
+        onPlay(nextRows);
       }
     }
   }
@@ -101,9 +98,36 @@ export default function Board() {
   return (
     <>
       <div className="status">{status}</div>
-      <BoardRow squares={rows[0]} onRowClick={(col) => onBoardClick(0, col)} />
-      <BoardRow squares={rows[1]} onRowClick={(col) => onBoardClick(1, col)} />
-      <BoardRow squares={rows[2]} onRowClick={(col) => onBoardClick(2, col)} />
+      <BoardRow squares={rows[0]} onRowClick={(col) => handleBoardClick(0, col)} />
+      <BoardRow squares={rows[1]} onRowClick={(col) => handleBoardClick(1, col)} />
+      <BoardRow squares={rows[2]} onRowClick={(col) => handleBoardClick(2, col)} />
     </>
+  );
+}
+
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true);
+  const [history, setHistory] = useState([emptyBoard(3)]);
+  // console.log("history[" + history.length - 1 + "]" + history[history.length - 1]);
+  const currentRows = history[history.length - 1];
+
+  function handlePlay(nextRows){
+    setHistory([ ...history , nextRows]);
+    setXIsNext(!xIsNext);
+}
+
+  return (
+    <div className="game" >
+      <div className="game-board" >
+        <Board 
+          xIsNext={xIsNext}
+          rows={currentRows}
+          onPlay={handlePlay}
+        />
+      </div>
+      <div className="game-info" >
+        <ol> <li> TODO </li> </ol>
+      </div>
+    </div>
   );
 }
