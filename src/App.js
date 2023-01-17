@@ -106,9 +106,9 @@ function Board({ xIsNext, rows, onPlay }) {
 }
 
 export default function Game() {
-  const [xIsNext, setXIsNext] = useState(true);
   const [history, setHistory] = useState([emptyBoard(3)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
   const currentRows = history[currentMove];
   const moveList = history.map(
     (rows, index) => {
@@ -128,13 +128,11 @@ export default function Game() {
   function handlePlay(nextRows){
     const updatedHistory = [ ...history.slice(0, currentMove + 1), nextRows];
     setHistory(updatedHistory);
-    setXIsNext(!xIsNext);
     setCurrentMove(updatedHistory.length - 1);
   }
 
   function gotoHistory(index){
     setCurrentMove(index);
-    setXIsNext(index % 2 === 0);
   }
 
   return (
